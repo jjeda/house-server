@@ -27,7 +27,7 @@
 - MSA // TODO
   - 까지 할 수 있을까..
   - Docker
-  - AWS
+  - AWS or GCP
   - API Gateway
   - Jenkins
 
