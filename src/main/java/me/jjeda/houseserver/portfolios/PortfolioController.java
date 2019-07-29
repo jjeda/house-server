@@ -5,6 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
@@ -36,6 +37,9 @@ public class PortfolioController {
         ControllerLinkBuilder selfLinkBuilder = linkTo(PortfolioController.class).slash(newPortfolio.getId());
         URI createdUri = selfLinkBuilder.toUri();
         PortfolioResource portfolioResource = new PortfolioResource(portfolio);
+        portfolioResource.add(linkTo(PortfolioController.class).withRel("query-portfolios"));
+        portfolioResource.add(selfLinkBuilder.withRel("update-portfolio"));
+        portfolioResource.add(new Link("/docs/index.html#resources-portfolios-create").withRel("profile"));
 
         return ResponseEntity.created(createdUri).body(portfolioResource);
     }
@@ -45,6 +49,7 @@ public class PortfolioController {
                                           PagedResourcesAssembler<Portfolio> assembler) {
         Page<Portfolio> page = this.portfolioRepository.findAll(pageable);
         PagedResources pagedResources = assembler.toResource(page, e -> new PortfolioResource(e));
+        pagedResources.add(new Link("/docs/index.html#resources-portfolios-list").withRel("profile"));
 
         return ResponseEntity.ok(pagedResources);
     }
@@ -60,6 +65,7 @@ public class PortfolioController {
 
         Portfolio portfolio = optionalPortfolio.get();
         PortfolioResource portfolioResource = new PortfolioResource(portfolio);
+        portfolioResource.add(new Link("/docs/index.html#resources-portfolios-get").withRel("profile"));
         return ResponseEntity.ok(portfolioResource);
     }
 
@@ -77,6 +83,7 @@ public class PortfolioController {
         Portfolio savedPortfolio = this.portfolioRepository.save(existingPortfolio);
 
         PortfolioResource portfolioResource = new PortfolioResource(savedPortfolio);
+        portfolioResource.add(new Link("/docs/index.html#resources-portfolios-update").withRel("profile"));
         return ResponseEntity.ok(portfolioResource);
     }
 

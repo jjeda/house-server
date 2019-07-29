@@ -23,7 +23,7 @@
   - Unit Test
   - Slicing Test
   - Application Test
-- REST[(Docs 바로가기)]()
+- REST[(Docs 바로가기)](/src/main/resources/static/docs_sample.png) //sample (TODO : 배포 후 수정)
   - Self-descriptive
   - HATEOAS
 - MSA // TODO

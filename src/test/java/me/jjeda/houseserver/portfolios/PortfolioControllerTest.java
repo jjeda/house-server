@@ -5,16 +5,24 @@ import me.jjeda.houseserver.common.TestDescription;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
 import javax.sound.sampled.Port;
 import java.time.LocalDateTime;
 import java.util.stream.IntStream;
 
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 
 public class PortfolioControllerTest extends BaseControllerTest {
@@ -32,12 +40,49 @@ public class PortfolioControllerTest extends BaseControllerTest {
                 .build();
 
         mockMvc.perform(post("/api/portfolios")
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .accept(MediaTypes.HAL_JSON)
-                .content(objectMapper.writeValueAsString(portfolio)))
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .accept(MediaTypes.HAL_JSON)
+                    .content(objectMapper.writeValueAsString(portfolio)))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("id").exists());
+                .andExpect(jsonPath("id").exists())
+                .andExpect(header().exists(HttpHeaders.LOCATION))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_UTF8_VALUE))
+                .andDo(document("create-portfolio",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("query-portfolios").description("link to query portfolios"),
+                                linkWithRel("update-portfolio").description("link to update an existing portfolio"),
+                                linkWithRel("profile").description("link to profile")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.ACCEPT).description("accept header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
+                        ),
+                        requestFields(
+                                fieldWithPath("id").description("identifier of new portfolio"),
+                                fieldWithPath("title").description("Name of new portfolio"),
+                                fieldWithPath("contents").description("contents of new portfolio"),
+                                fieldWithPath("createdDateTime").description("date time of begin of new portfolio"),
+                                fieldWithPath("modifiedDateTime").description("date time of modified portfolio")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.LOCATION).description("Location header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content type")
+                        ),
+                        relaxedResponseFields(
+                                fieldWithPath("id").description("identifier of new portfolio"),
+                                fieldWithPath("title").description("Name of new portfolio"),
+                                fieldWithPath("contents").description("contents of new portfolio"),
+                                fieldWithPath("createdDateTime").description("date time of begin of new portfolio"),
+                                fieldWithPath("modifiedDateTime").description("date time of modified portfolio"),
+                                fieldWithPath("_links.self.href").description("link to self"),
+                                fieldWithPath("_links.query-portfolios.href").description("link to query portfolio list"),
+                                fieldWithPath("_links.update-portfolio.href").description("link to update existing portfolio"),
+                                fieldWithPath("_links.profile.href").description("link to profile")
+
+                        )
+                ));
 
     }
 
@@ -68,7 +113,9 @@ public class PortfolioControllerTest extends BaseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("page").exists())
                 .andExpect(jsonPath("_embedded.portfolioList[0]._links.self").exists())
-                .andExpect(jsonPath("_links.self").exists());
+                .andExpect(jsonPath("_links.profile").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andDo(document("query-portfolios"));
     }
 
 
@@ -84,7 +131,9 @@ public class PortfolioControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("title").exists())
                 .andExpect(jsonPath("contents").exists())
-                .andExpect(jsonPath("_links.self").exists());
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("get-an-portfolio"));
 
 
     }
@@ -114,7 +163,8 @@ public class PortfolioControllerTest extends BaseControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("title").value(portfolioTitle))
-                .andExpect(jsonPath("_links.self").exists());
+                .andExpect(jsonPath("_links.self").exists())
+                .andDo(document("update-portfolio"));
 
     }
 
