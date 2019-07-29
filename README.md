@@ -33,13 +33,9 @@
   - API Gateway
   - Jenkins
 
-## 3. DOCS
+## 3. DOCS //  TODO : 배포
 ![](src/main/resources/static/docs/docs1.png)
-![](src/main/resources/static/docs/docs2.png)
 ![](src/main/resources/static/docs/docs3.png)
-![](src/main/resources/static/docs/docs4.png)
 ![](src/main/resources/static/docs/docs5.png)
-![](src/main/resources/static/docs/docs6.png)
 ![](src/main/resources/static/docs/docs7.png)
-![](src/main/resources/static/docs/docs8.png)
 ![](src/main/resources/static/docs/docs9.png)
