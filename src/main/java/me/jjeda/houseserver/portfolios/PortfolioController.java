@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.Optional;
 
@@ -27,7 +28,7 @@ public class PortfolioController {
     private final ModelMapper modelMapper;
 
     @PostMapping
-    public ResponseEntity createPortfolio(@RequestBody Portfolio requestPortfolio) {
+    public ResponseEntity createPortfolio(@RequestBody @Valid  Portfolio requestPortfolio) {
 
         Portfolio portfolio = modelMapper.map(requestPortfolio, Portfolio.class);
 
@@ -59,6 +60,22 @@ public class PortfolioController {
 
         Portfolio portfolio = optionalPortfolio.get();
         PortfolioResource portfolioResource = new PortfolioResource(portfolio);
+        return ResponseEntity.ok(portfolioResource);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity updatePortfolios(@PathVariable Integer id,
+                                           @RequestBody @Valid Portfolio portfolio) {
+        Optional<Portfolio> optionalPortfolio = this.portfolioRepository.findById(id);
+        if (optionalPortfolio.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Portfolio existingPortfolio = optionalPortfolio.get();
+        this.modelMapper.map(portfolio,existingPortfolio);
+        Portfolio savedPortfolio = this.portfolioRepository.save(existingPortfolio);
+
+        PortfolioResource portfolioResource = new PortfolioResource(savedPortfolio);
         return ResponseEntity.ok(portfolioResource);
     }
 
