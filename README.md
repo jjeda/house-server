@@ -6,7 +6,7 @@
 
 ## 1. 기술 스택
 
-- Spring security : 인증, 권한, 인가
+- Spring security(OAuth2) : 인증, 권한, 인가
   - 초기 Grant Type : password , TokenStore : Inmemmory(h2)
   - 확장 Grant Type : Authorization Code, TokenStore : JDBC -> Redis 
 - Spring Boot
@@ -19,11 +19,11 @@
 
 ## 2. 패러다임
 
-- [TDD](/src/test/java/me/jjeda/houseserver/portfolios/PortfolioControllerTest.java)
+- TDD[(테스트코드 보기)](/src/test/java/me/jjeda/houseserver/portfolios/PortfolioControllerTest.java)
   - Unit Test
   - Slicing Test
   - Application Test
-- REST
+- REST[(Docs 바로가기)]()
   - Self-descriptive
   - HATEOAS
 - MSA // TODO

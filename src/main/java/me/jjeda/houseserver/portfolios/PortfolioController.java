@@ -11,9 +11,9 @@ import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -73,10 +73,17 @@ public class PortfolioController {
 
         Portfolio existingPortfolio = optionalPortfolio.get();
         this.modelMapper.map(portfolio,existingPortfolio);
+        existingPortfolio.setModifiedDateTime(LocalDateTime.now());
         Portfolio savedPortfolio = this.portfolioRepository.save(existingPortfolio);
 
         PortfolioResource portfolioResource = new PortfolioResource(savedPortfolio);
         return ResponseEntity.ok(portfolioResource);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity deletePortfolio(@PathVariable Integer id) {
+        this.portfolioRepository.deleteById(id);
+
+        return ResponseEntity.ok().build();
+    }
 }
