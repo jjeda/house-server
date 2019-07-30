@@ -1,6 +1,8 @@
 package me.jjeda.houseserver.portfolios;
 
 import lombok.AllArgsConstructor;
+import me.jjeda.houseserver.accounts.Account;
+import me.jjeda.houseserver.accounts.CurrentUser;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +11,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -29,9 +32,11 @@ public class PortfolioController {
     private final ModelMapper modelMapper;
 
     @PostMapping
-    public ResponseEntity createPortfolio(@RequestBody @Valid  Portfolio requestPortfolio) {
+    public ResponseEntity createPortfolio(@RequestBody @Valid  Portfolio requestPortfolio,
+                                          @CurrentUser Account currentUser) {
 
         Portfolio portfolio = modelMapper.map(requestPortfolio, Portfolio.class);
+        portfolio.setManager(currentUser);
 
         Portfolio newPortfolio = this.portfolioRepository.save(portfolio);
         ControllerLinkBuilder selfLinkBuilder = linkTo(PortfolioController.class).slash(newPortfolio.getId());
@@ -46,16 +51,21 @@ public class PortfolioController {
 
     @GetMapping
     public ResponseEntity queryPortfolios(Pageable pageable,
-                                          PagedResourcesAssembler<Portfolio> assembler) {
+                                          PagedResourcesAssembler<Portfolio> assembler,
+                                          @CurrentUser Account account) {
         Page<Portfolio> page = this.portfolioRepository.findAll(pageable);
         PagedResources pagedResources = assembler.toResource(page, e -> new PortfolioResource(e));
         pagedResources.add(new Link("/docs/index.html#resources-portfolios-list").withRel("profile"));
+        if (account != null) {
+            pagedResources.add(linkTo(PortfolioController.class).withRel("create-portfolio"));
+        }
 
         return ResponseEntity.ok(pagedResources);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity getPortfolios(@PathVariable Integer id) {
+    public ResponseEntity getPortfolios(@PathVariable Integer id,
+                                        @CurrentUser Account currentUser) {
 
         Optional<Portfolio> optionalPortfolio = this.portfolioRepository.findById(id);
 
@@ -66,18 +76,26 @@ public class PortfolioController {
         Portfolio portfolio = optionalPortfolio.get();
         PortfolioResource portfolioResource = new PortfolioResource(portfolio);
         portfolioResource.add(new Link("/docs/index.html#resources-portfolios-get").withRel("profile"));
+        if(portfolio.getManager().equals(currentUser)) {
+            portfolioResource.add(linkTo(PortfolioController.class).slash(portfolio.getId()).withRel("update-portfolio"));
+        }
         return ResponseEntity.ok(portfolioResource);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity updatePortfolios(@PathVariable Integer id,
-                                           @RequestBody @Valid Portfolio portfolio) {
+                                           @RequestBody @Valid Portfolio portfolio,
+                                           @CurrentUser Account currentUser) {
         Optional<Portfolio> optionalPortfolio = this.portfolioRepository.findById(id);
         if (optionalPortfolio.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
         Portfolio existingPortfolio = optionalPortfolio.get();
+        if (!existingPortfolio.getManager().equals(currentUser)) {
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+        }
+
         this.modelMapper.map(portfolio,existingPortfolio);
         existingPortfolio.setModifiedDateTime(LocalDateTime.now());
         Portfolio savedPortfolio = this.portfolioRepository.save(existingPortfolio);
