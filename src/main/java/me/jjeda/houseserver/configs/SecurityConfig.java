@@ -1,5 +1,6 @@
 package me.jjeda.houseserver.configs;
 
+import lombok.AllArgsConstructor;
 import me.jjeda.houseserver.accounts.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -16,12 +17,11 @@ import org.springframework.security.oauth2.provider.token.store.InMemoryTokenSto
 
 @Configuration
 @EnableWebSecurity
+@AllArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
     AccountService accountService;
 
-    @Autowired
     PasswordEncoder passwordEncoder;
 
     @Bean

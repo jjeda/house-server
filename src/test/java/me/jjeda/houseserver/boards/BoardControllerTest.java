@@ -1,4 +1,4 @@
-package me.jjeda.houseserver.portfolios;
+package me.jjeda.houseserver.boards;
 
 import me.jjeda.houseserver.common.BaseControllerTest;
 import me.jjeda.houseserver.common.TestDescription;
@@ -8,7 +8,6 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
-import javax.sound.sampled.Port;
 import java.time.LocalDateTime;
 import java.util.stream.IntStream;
 
@@ -25,34 +24,35 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 
-public class PortfolioControllerTest extends BaseControllerTest {
+public class BoardControllerTest extends BaseControllerTest {
 
     @Autowired
-    PortfolioRepository portfolioRepository;
+    BoardRepository boardRepository;
 
     @Test
-    @TestDescription("정상적으로 포트폴리오를 생성하는 테스트")
-    public void createPortfolio() throws Exception {
-        Portfolio portfolio = Portfolio.builder()
-                .title("Portfolio Test")
+    @TestDescription("정상적으로 게시물을 생성하는 테스트")
+    public void createBoard() throws Exception {
+        Board board = Board.builder()
+                .title("Board Test")
                 .contents("Rest API Development with Spring")
                 .createdDateTime(LocalDateTime.now())
+                .boardType(BoardType.PORTFOLIO)
                 .build();
 
-        mockMvc.perform(post("/api/portfolios")
+        mockMvc.perform(post("/api/boards")
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
                     .accept(MediaTypes.HAL_JSON)
-                    .content(objectMapper.writeValueAsString(portfolio)))
+                    .content(objectMapper.writeValueAsString(board)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").exists())
                 .andExpect(header().exists(HttpHeaders.LOCATION))
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_UTF8_VALUE))
-                .andDo(document("create-portfolio",
+                .andDo(document("create-board",
                         links(
                                 linkWithRel("self").description("link to self"),
-                                linkWithRel("query-portfolios").description("link to query portfolios"),
-                                linkWithRel("update-portfolio").description("link to update an existing portfolio"),
+                                linkWithRel("query-boards").description("link to query boards"),
+                                linkWithRel("update-board").description("link to update an existing board"),
                                 linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
@@ -60,25 +60,25 @@ public class PortfolioControllerTest extends BaseControllerTest {
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
                         ),
                         requestFields(
-                                fieldWithPath("id").description("identifier of new portfolio"),
-                                fieldWithPath("title").description("Name of new portfolio"),
-                                fieldWithPath("contents").description("contents of new portfolio"),
-                                fieldWithPath("createdDateTime").description("date time of begin of new portfolio"),
-                                fieldWithPath("modifiedDateTime").description("date time of modified portfolio")
+                                fieldWithPath("id").description("identifier of new board"),
+                                fieldWithPath("title").description("Name of new board"),
+                                fieldWithPath("contents").description("contents of new board"),
+                                fieldWithPath("createdDateTime").description("date time of begin of new board"),
+                                fieldWithPath("modifiedDateTime").description("date time of modified board")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.LOCATION).description("Location header"),
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content type")
                         ),
                         relaxedResponseFields(
-                                fieldWithPath("id").description("identifier of new portfolio"),
-                                fieldWithPath("title").description("Name of new portfolio"),
-                                fieldWithPath("contents").description("contents of new portfolio"),
-                                fieldWithPath("createdDateTime").description("date time of begin of new portfolio"),
-                                fieldWithPath("modifiedDateTime").description("date time of modified portfolio"),
+                                fieldWithPath("id").description("identifier of new board"),
+                                fieldWithPath("title").description("Name of new board"),
+                                fieldWithPath("contents").description("contents of new board"),
+                                fieldWithPath("createdDateTime").description("date time of begin of new board"),
+                                fieldWithPath("modifiedDateTime").description("date time of modified board"),
                                 fieldWithPath("_links.self.href").description("link to self"),
-                                fieldWithPath("_links.query-portfolios.href").description("link to query portfolio list"),
-                                fieldWithPath("_links.update-portfolio.href").description("link to update existing portfolio"),
+                                fieldWithPath("_links.query-boards.href").description("link to query board list"),
+                                fieldWithPath("_links.update-board.href").description("link to update existing board"),
                                 fieldWithPath("_links.profile.href").description("link to profile")
 
                         )
@@ -88,128 +88,130 @@ public class PortfolioControllerTest extends BaseControllerTest {
 
     @Test
     @TestDescription("입력 값이 유효하지 않는 경우에 에러가 발생하는 테스트")
-    public void createPortfolio_Bad_Request_Wrong_Input() throws Exception {
-        Portfolio portfolio = Portfolio.builder().build();
+    public void createBoard_Bad_Request_Wrong_Input() throws Exception {
+        Board board = Board.builder().build();
 
-        this.mockMvc.perform(post("/api/portfolios")
+        this.mockMvc.perform(post("/api/boards")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .content(this.objectMapper.writeValueAsString(portfolio)))
+                .content(this.objectMapper.writeValueAsString(board)))
                 .andExpect(status().isBadRequest());
     }
 
 
     @Test
-    @TestDescription("30개의 포트폴리오를 10개씩 2번째 페이지 조회하기")
-    public void queryPortfolios() throws Exception {
+    @TestDescription("30개의 게시물을 10개씩 2번째 페이지 조회하기")
+    public void queryBoards() throws Exception {
         //Given
-        IntStream.range(0, 30).forEach(this::generatePortfolio);
+        IntStream.range(0, 30).forEach(this::generateBoard);
 
         //When & Then
-        this.mockMvc.perform(get("/api/portfolios")
+        this.mockMvc.perform(get("/api/boards")
                 .param("page", "1")
                 .param("size", "10")
                 .param("sort", "id,DESC"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("page").exists())
-                .andExpect(jsonPath("_embedded.portfolioList[0]._links.self").exists())
+                .andExpect(jsonPath("_embedded.BoardList[0]._links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
                 .andExpect(jsonPath("_links.self").exists())
-                .andDo(document("query-portfolios"));
+                .andDo(document("query-boards"));
     }
 
 
     @Test
-    @TestDescription("기존의 포트폴리오를 하나 조회하기")
-    public void getPortfolio() throws Exception {
+    @TestDescription("기존의 게시물을 하나 조회하기")
+    public void getBoard() throws Exception {
 
-        Portfolio portfolio = this.generatePortfolio(100);
+        Board board = this.generateBoard(100);
 
-        this.mockMvc.perform(get("/api/portfolios/{id}", portfolio.getId()))
+        this.mockMvc.perform(get("/api/boards/{id}", board.getId()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("title").exists())
                 .andExpect(jsonPath("contents").exists())
+                .andExpect(jsonPath("BoardType").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("get-an-portfolio"));
+                .andDo(document("get-an-board"));
 
 
     }
 
     @Test
-    @TestDescription("없는 포트폴리오를 조회했을 때 404 응답받기")
-    public void getPortfolio404() throws Exception {
-        this.mockMvc.perform(get("/api/portfolios/1234123"))
+    @TestDescription("없는 게시물을 조회했을 때 404 응답받기")
+    public void getBoard404() throws Exception {
+        this.mockMvc.perform(get("/api/boards/1234123"))
                 .andExpect(status().isNotFound());
 
     }
 
     @Test
-    @TestDescription("포트폴리오를 정상적으로 수정하기")
-    public void updatePortfolio() throws Exception {
+    @TestDescription("게시물을 정상적으로 수정하기")
+    public void updateBoard() throws Exception {
         //Given
-        Portfolio tempPortfolio = this.generatePortfolio(200);
+        Board tempBoard = this.generateBoard(200);
 
-        Portfolio portfolio = this.modelMapper.map(tempPortfolio,Portfolio.class);
-        String portfolioTitle = "Updated Portfolio";
-        portfolio.setTitle(portfolioTitle);
+        Board board = this.modelMapper.map(tempBoard, Board.class);
+        String BoardTitle = "Updated Board";
+        board.setTitle(BoardTitle);
 
         //When & Them
-        this.mockMvc.perform(put("/api/portfolios/{id}",tempPortfolio.getId())
+        this.mockMvc.perform(put("/api/boards/{id}", tempBoard.getId())
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .content(this.objectMapper.writeValueAsString(portfolio)))
+                    .content(this.objectMapper.writeValueAsString(board)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("title").value(portfolioTitle))
+                .andExpect(jsonPath("title").value(BoardTitle))
                 .andExpect(jsonPath("_links.self").exists())
-                .andDo(document("update-portfolio"));
+                .andDo(document("update-board"));
 
     }
 
     @Test
     @TestDescription("입력값이 유효하지 않는 경우에 이벤트 수정 실패")
-    public void updatePortfolio400_Wrong() throws Exception {
+    public void updateBoard400_Wrong() throws Exception {
         //Given
-        Portfolio tempPortfolio = this.generatePortfolio(200);
+        Board tempBoard = this.generateBoard(200);
 
-        Portfolio portfolio = Portfolio.builder().build();
+        Board board = Board.builder().build();
 
         //When & Them
-        this.mockMvc.perform(put("/api/portfolios/{id}",tempPortfolio.getId())
+        this.mockMvc.perform(put("/api/boards/{id}", tempBoard.getId())
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .content(this.objectMapper.writeValueAsString(portfolio)))
+                .content(this.objectMapper.writeValueAsString(board)))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     @TestDescription("존재하지 않는 이벤트 수정 실패")
-    public void updatePortfolio404() throws Exception {
+    public void updateBoard404() throws Exception {
         //Given
-        Portfolio tempPortfolio = this.generatePortfolio(200);
+        Board tempBoard = this.generateBoard(200);
 
-        Portfolio portfolio = this.modelMapper.map(tempPortfolio,Portfolio.class);
+        Board board = this.modelMapper.map(tempBoard, Board.class);
 
         //When & Them
-        this.mockMvc.perform(put("/api/portfolios/1234124")
+        this.mockMvc.perform(put("/api/boards/1234124")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .content(this.objectMapper.writeValueAsString(portfolio)))
+                .content(this.objectMapper.writeValueAsString(board)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
-    private Portfolio generatePortfolio(int index) {
-        Portfolio portfolio = buildPortfolio(index);
-        return this.portfolioRepository.save(portfolio);
+    private Board generateBoard(int index) {
+        Board board = buildBoard(index);
+        return this.boardRepository.save(board);
     }
 
-    private Portfolio buildPortfolio(int index) {
-        return Portfolio.builder()
-                .title("Portfolio Test" + index)
+    private Board buildBoard(int index) {
+        return Board.builder()
+                .title("Board Test" + index)
                 .contents("Rest API Development with Spring")
                 .createdDateTime(LocalDateTime.now())
+                .boardType(BoardType.PORTFOLIO)
                 .build();
     }
 

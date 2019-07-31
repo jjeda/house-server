@@ -1,5 +1,6 @@
 package me.jjeda.houseserver.configs;
 
+import lombok.AllArgsConstructor;
 import me.jjeda.houseserver.accounts.AccountService;
 import me.jjeda.houseserver.common.AppProperties;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,21 +16,17 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 
 @Configuration
 @EnableAuthorizationServer
+@AllArgsConstructor
 public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
 
-    @Autowired
     PasswordEncoder passwordEncoder;
 
-    @Autowired
     AuthenticationManager authenticationManager;
 
-    @Autowired
     AccountService accountService;
 
-    @Autowired
     TokenStore tokenStore;
 
-    @Autowired
     AppProperties appProperties;
 
     @Override
