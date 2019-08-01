@@ -78,6 +78,7 @@ public class BoardController {
         boardResource.add(new Link("/docs/index.html#resources-boards-get").withRel("profile"));
         if(board.getManager().equals(currentUser)) {
             boardResource.add(linkTo(BoardController.class).slash(board.getId()).withRel("update-board"));
+            boardResource.add(linkTo(BoardController.class).slash(board.getId()).withRel("delete-board"));
         }
         return ResponseEntity.ok(boardResource);
     }
