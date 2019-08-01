@@ -24,7 +24,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
 @Controller
 @AllArgsConstructor
-@RequestMapping(value = "/api/Boards", produces = MediaTypes.HAL_JSON_UTF8_VALUE)
+@RequestMapping(value = "/api/boards", produces = MediaTypes.HAL_JSON_UTF8_VALUE)
 public class BoardController {
 
     private final BoardRepository boardRepository;

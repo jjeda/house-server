@@ -1,5 +1,9 @@
 package me.jjeda.houseserver.boards;
 
+import me.jjeda.houseserver.accounts.Account;
+import me.jjeda.houseserver.accounts.AccountRepository;
+import me.jjeda.houseserver.accounts.AccountService;
+import me.jjeda.houseserver.common.AppProperties;
 import me.jjeda.houseserver.common.BaseControllerTest;
 import me.jjeda.houseserver.common.TestDescription;
 import org.junit.Test;
@@ -28,6 +32,15 @@ public class BoardControllerTest extends BaseControllerTest {
 
     @Autowired
     BoardRepository boardRepository;
+
+    @Autowired
+    AccountService accountService;
+
+    @Autowired
+    AccountRepository accountRepository;
+
+    @Autowired
+    AppProperties appProperties;
 
     @Test
     @TestDescription("정상적으로 게시물을 생성하는 테스트")
@@ -112,7 +125,7 @@ public class BoardControllerTest extends BaseControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("page").exists())
-                .andExpect(jsonPath("_embedded.BoardList[0]._links.self").exists())
+                .andExpect(jsonPath("_embedded.boardList[0]._links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andDo(document("query-boards"));
@@ -199,6 +212,12 @@ public class BoardControllerTest extends BaseControllerTest {
                 .content(this.objectMapper.writeValueAsString(board)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
+    }
+
+    private Board generateBoard(int index, Account account) {
+        Board board = buildBoard(index);
+        board.setManager(account);
+        return this.boardRepository.save(board);
     }
 
     private Board generateBoard(int index) {

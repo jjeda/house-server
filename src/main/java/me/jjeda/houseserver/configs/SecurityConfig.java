@@ -2,7 +2,6 @@ package me.jjeda.houseserver.configs;
 
 import lombok.AllArgsConstructor;
 import me.jjeda.houseserver.accounts.AccountService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
