@@ -19,7 +19,7 @@
 
 ## 2. 패러다임
 
-- TDD[(테스트코드 보기)](/src/test/java/me/jjeda/houseserver/portfolios/PortfolioControllerTest.java)
+- TDD[(테스트코드 보기)](/src/test/java/me/jjeda/houseserver/boards/BoardControllerTest.java)
   - Unit Test
   - Slicing Test
   - Application Test
