@@ -57,8 +57,9 @@ public class BoardController {
         PagedResources pagedResources = assembler.toResource(page, e -> new BoardResource(e));
         pagedResources.add(new Link("/docs/index.html#resources-boards-list").withRel("profile"));
         if (account != null) {
-            pagedResources.add(linkTo(BoardController.class).withRel("create-Board"));
+            pagedResources.add(linkTo(BoardController.class).withRel("create-board"));
         }
+
 
         return ResponseEntity.ok(pagedResources);
     }

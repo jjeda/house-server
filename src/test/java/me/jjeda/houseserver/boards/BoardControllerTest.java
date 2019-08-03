@@ -2,17 +2,22 @@ package me.jjeda.houseserver.boards;
 
 import me.jjeda.houseserver.accounts.Account;
 import me.jjeda.houseserver.accounts.AccountRepository;
+import me.jjeda.houseserver.accounts.AccountRole;
 import me.jjeda.houseserver.accounts.AccountService;
 import me.jjeda.houseserver.common.AppProperties;
 import me.jjeda.houseserver.common.BaseControllerTest;
 import me.jjeda.houseserver.common.TestDescription;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.common.util.Jackson2JsonParser;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
@@ -22,6 +27,7 @@ import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.li
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -42,6 +48,12 @@ public class BoardControllerTest extends BaseControllerTest {
     @Autowired
     AppProperties appProperties;
 
+    @Before
+    public void setUp() {
+        this.boardRepository.deleteAll();
+        this.accountRepository.deleteAll();
+    }
+
     @Test
     @TestDescription("정상적으로 게시물을 생성하는 테스트")
     public void createBoard() throws Exception {
@@ -53,6 +65,7 @@ public class BoardControllerTest extends BaseControllerTest {
                 .build();
 
         mockMvc.perform(post("/api/boards")
+                    .header(HttpHeaders.AUTHORIZATION, getBearerToken(true))
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
                     .accept(MediaTypes.HAL_JSON)
                     .content(objectMapper.writeValueAsString(board)))
@@ -77,7 +90,9 @@ public class BoardControllerTest extends BaseControllerTest {
                                 fieldWithPath("title").description("Name of new board"),
                                 fieldWithPath("contents").description("contents of new board"),
                                 fieldWithPath("createdDateTime").description("date time of begin of new board"),
-                                fieldWithPath("modifiedDateTime").description("date time of modified board")
+                                fieldWithPath("modifiedDateTime").description("date time of modified board"),
+                                fieldWithPath("boardType").description("boardType of new board"),
+                                fieldWithPath("manager").description("manager of new board")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.LOCATION).description("Location header"),
@@ -89,6 +104,8 @@ public class BoardControllerTest extends BaseControllerTest {
                                 fieldWithPath("contents").description("contents of new board"),
                                 fieldWithPath("createdDateTime").description("date time of begin of new board"),
                                 fieldWithPath("modifiedDateTime").description("date time of modified board"),
+                                fieldWithPath("boardType").description("boardType of new board"),
+                                fieldWithPath("manager").description("manager of new board"),
                                 fieldWithPath("_links.self.href").description("link to self"),
                                 fieldWithPath("_links.query-boards.href").description("link to query board list"),
                                 fieldWithPath("_links.update-board.href").description("link to update existing board"),
@@ -99,15 +116,47 @@ public class BoardControllerTest extends BaseControllerTest {
 
     }
 
+    private String getBearerToken(boolean needToCreateAccount) throws Exception {
+        return "Bearer " + getAccessToken(needToCreateAccount);
+    }
+
+    private String getAccessToken(boolean needToCreateAccount) throws Exception {
+        // Given
+        if (needToCreateAccount) {
+            createAccount();
+        }
+
+        ResultActions perform = this.mockMvc.perform(post("/oauth/token")
+                .with(httpBasic(appProperties.getClientId(), appProperties.getClientSecret()))
+                .param("username", appProperties.getUserUsername())
+                .param("password", appProperties.getUserPassword())
+                .param("grant_type", "password"));
+
+        var responseBody = perform.andReturn().getResponse().getContentAsString();
+        Jackson2JsonParser parser = new Jackson2JsonParser();
+        return parser.parseMap(responseBody).get("access_token").toString();
+    }
+
+    private Account createAccount() {
+        Account jjeda = Account.builder()
+                .email(appProperties.getUserUsername())
+                .password(appProperties.getUserPassword())
+                .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
+                .build();
+        return this.accountService.saveAccount(jjeda);
+    }
+
     @Test
     @TestDescription("입력 값이 유효하지 않는 경우에 에러가 발생하는 테스트")
     public void createBoard_Bad_Request_Wrong_Input() throws Exception {
         Board board = Board.builder().build();
 
         this.mockMvc.perform(post("/api/boards")
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(true))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(this.objectMapper.writeValueAsString(board)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andDo(document("create-board"));
     }
 
 
@@ -131,12 +180,35 @@ public class BoardControllerTest extends BaseControllerTest {
                 .andDo(document("query-boards"));
     }
 
+    @Test
+    @TestDescription("로그인 후 30개의 게시물을 10개씩 2번째 페이지 조회하기")
+    public void queryBoardsWithAuthentiation() throws Exception {
+        //Given
+        IntStream.range(0, 30).forEach(this::generateBoard);
+
+        //When & Then
+        this.mockMvc.perform(get("/api/boards")
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(true))
+                .param("page", "1")
+                .param("size", "10")
+                .param("sort", "id,DESC"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("page").exists())
+                .andExpect(jsonPath("_embedded.boardList[0]._links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.create-board").exists())
+                .andDo(document("query-boards"));
+    }
+
 
     @Test
     @TestDescription("기존의 게시물을 하나 조회하기")
     public void getBoard() throws Exception {
 
-        Board board = this.generateBoard(100);
+        Account account = this.createAccount();
+        Board board = this.generateBoard(100,account);
 
         this.mockMvc.perform(get("/api/boards/{id}", board.getId()))
                 .andDo(print())
@@ -144,7 +216,7 @@ public class BoardControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("title").exists())
                 .andExpect(jsonPath("contents").exists())
-                .andExpect(jsonPath("BoardType").exists())
+                .andExpect(jsonPath("boardType").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("get-an-board"));
@@ -164,7 +236,8 @@ public class BoardControllerTest extends BaseControllerTest {
     @TestDescription("게시물을 정상적으로 수정하기")
     public void updateBoard() throws Exception {
         //Given
-        Board tempBoard = this.generateBoard(200);
+        Account account = this.createAccount();
+        Board tempBoard = this.generateBoard(200, account);
 
         Board board = this.modelMapper.map(tempBoard, Board.class);
         String BoardTitle = "Updated Board";
@@ -172,6 +245,7 @@ public class BoardControllerTest extends BaseControllerTest {
 
         //When & Them
         this.mockMvc.perform(put("/api/boards/{id}", tempBoard.getId())
+                    .header(HttpHeaders.AUTHORIZATION, getBearerToken(false))
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
                     .content(this.objectMapper.writeValueAsString(board)))
                 .andDo(print())
@@ -186,12 +260,14 @@ public class BoardControllerTest extends BaseControllerTest {
     @TestDescription("입력값이 유효하지 않는 경우에 이벤트 수정 실패")
     public void updateBoard400_Wrong() throws Exception {
         //Given
-        Board tempBoard = this.generateBoard(200);
+        Account account = this.createAccount();
+        Board tempBoard = this.generateBoard(200, account);
 
         Board board = Board.builder().build();
 
         //When & Them
         this.mockMvc.perform(put("/api/boards/{id}", tempBoard.getId())
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(false))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(this.objectMapper.writeValueAsString(board)))
                 .andDo(print())
@@ -202,12 +278,14 @@ public class BoardControllerTest extends BaseControllerTest {
     @TestDescription("존재하지 않는 이벤트 수정 실패")
     public void updateBoard404() throws Exception {
         //Given
-        Board tempBoard = this.generateBoard(200);
+        Account account = this.createAccount();
+        Board tempBoard = this.generateBoard(200, account);
 
         Board board = this.modelMapper.map(tempBoard, Board.class);
 
         //When & Them
         this.mockMvc.perform(put("/api/boards/1234124")
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(false))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(this.objectMapper.writeValueAsString(board)))
                 .andDo(print())
