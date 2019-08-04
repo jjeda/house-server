@@ -39,3 +39,42 @@
 ![](src/main/resources/static/docs/docs6.png)
 ![](src/main/resources/static/docs/docs7.png)
 ![](src/main/resources/static/docs/docs9.png)
+
+## 4. 인증과정
+- /oauth/token 로 POST 요청
+  - basic 요청으로 clientId("myApp")와 clientPass("pass") 를 포함
+  - "username", "password", "grant_type"
+  - "username" 은 사용자의 email, "password"는 비밀번호 , "grant_type"은 "password"로 고정
+```http request
+Headers =
+[
+  Authorization:"Basic bXlBcHA6cGFzcw=="
+]
+Parameters =
+{
+  username = [user@email.com], 
+  password = [user], 
+  grant_type = [password]
+}
+```
+  
+```json
+// 토큰 예시
+{ 
+  "access_token":"f253ac88-d30b-498e-8f8b-abec71d64881",
+  "token_type":"bearer",
+  "refresh_token":"3e986a5d-5422-49f9-a4c3-4c3aeb8230fe",
+  "expires_in":599,
+  "scope":"read write",
+}
+```
+
+- 인증이 필요한 로직에 접근할 때 Header에 access_token을 포함시킨다
+```http request
+Headers =
+[
+  Content-Type:"application/json;charset=UTF-8", 
+  Authorization:"Bearer f253ac88-d30b-498e-8f8b-abec71d64881", 
+  Accept:"application/hal+json"
+]
+``` 
