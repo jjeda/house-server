@@ -52,9 +52,9 @@ Headers =
 ]
 Parameters =
 {
-  username = [user@email.com], 
-  password = [user], 
-  grant_type = [password]
+  username : "[user@email.com]", 
+  password : "[user]", 
+  grant_type : "password"
 }
 ```
   
@@ -69,12 +69,12 @@ Parameters =
 }
 ```
 
-- 인증이 필요한 로직에 접근할 때 Header에 access_token을 포함시킨다
+- 인증이 필요한 로직에 접근할 때 Header에 token_type + access_token을 포함시킨다
 ```http request
 Headers =
 [
   Content-Type:"application/json;charset=UTF-8", 
-  Authorization:"Bearer f253ac88-d30b-498e-8f8b-abec71d64881", 
+  Authorization:"bearer f253ac88-d30b-498e-8f8b-abec71d64881", 
   Accept:"application/hal+json"
 ]
 ``` 

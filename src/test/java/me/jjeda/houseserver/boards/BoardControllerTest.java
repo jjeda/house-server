@@ -117,7 +117,7 @@ public class BoardControllerTest extends BaseControllerTest {
     }
 
     private String getBearerToken(boolean needToCreateAccount) throws Exception {
-        return "Bearer " + getAccessToken(needToCreateAccount);
+        return "bearer " + getAccessToken(needToCreateAccount);
     }
 
     private String getAccessToken(boolean needToCreateAccount) throws Exception {
