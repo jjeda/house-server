@@ -80,7 +80,7 @@ Headers =
 ``` 
 
 ## 5. API 접근 flow
-- form data or axios 등으로 /api/boards 에 GET 요청을 보낸다.
+- form data or axios 등으로 /api 에 GET 요청을 보낸다.
 ```json
 /* Response Message */
 {
