@@ -21,7 +21,6 @@ public class Board {
     private String title;
     @NotEmpty
     private String contents;
-    @NotNull
     private LocalDateTime createdDateTime;
     private LocalDateTime modifiedDateTime;
 

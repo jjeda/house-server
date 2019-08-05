@@ -3,6 +3,7 @@ package me.jjeda.houseserver.boards;
 import lombok.AllArgsConstructor;
 import me.jjeda.houseserver.accounts.Account;
 import me.jjeda.houseserver.accounts.CurrentUser;
+import org.apache.tomcat.jni.Local;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,7 +38,7 @@ public class BoardController {
 
         Board board = modelMapper.map(requestBoard, Board.class);
         board.setManager(currentUser);
-
+        board.setCreatedDateTime(LocalDateTime.now());
         Board newBoard = this.boardRepository.save(board);
         ControllerLinkBuilder selfLinkBuilder = linkTo(BoardController.class).slash(newBoard.getId());
         URI createdUri = selfLinkBuilder.toUri();

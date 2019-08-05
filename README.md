@@ -78,3 +78,81 @@ Headers =
   Accept:"application/hal+json"
 ]
 ``` 
+
+## 5. API 접근 flow
+- form data or axios 등으로 /api/boards 에 GET 요청을 보낸다.
+```json
+/* Response Message */
+{
+  "_links": {
+    "boards": {
+      "href":"http://localhost:8080/api/boards"
+    }
+  }
+}
+```
+- Response message의 _links.boards.href 를 통해 GET 요청을 보내면 다음과 같은 메시지를 받는다.
+```json
+{
+    "_links": {
+        "self": {
+            "href": "http://localhost:8080/api/boards?page=0&size=20"
+        },
+        "profile": {
+            "href": "/docs/index.html#resources-boards-list"
+        },
+        /* 로그인 했을 때만 보여짐 */
+        "create-board": {
+            "href": "http://localhost:8080/api/boards"
+        }
+    },
+    "page": {
+        "size": 20,
+        "totalElements": 0,
+        "totalPages": 0,
+        "number": 0
+    }
+}
+```
+- _links.create-board 를 통해 게시물 생성가능
+```json
+/* Request Message */
+{
+	"title" : "Test Title",
+	"contents" : "test contents",
+	"boardType" :"PORTFOLIO"
+}
+```
+```json
+/* Response Message */
+{
+    "id": 3,
+    "title": "Test Title",
+    "contents": "test contents",
+    "createdDateTime": "2019-08-05T14:25:56.6192144",
+    "modifiedDateTime": null,
+    "boardType": "PORTFOLIO",
+    "manager": {
+        "id": 1,
+        "role": "[USER]"
+    },
+    "_links": {
+        "self": {
+            "href": "http://localhost:8080/api/boards/3"
+        },
+        "query-boards": {
+            "href": "http://localhost:8080/api/boards"
+        },
+        "update-board": {
+            "href": "http://localhost:8080/api/boards/3"
+        },
+        "delete-board": {
+            "href:": "http://localhost:8080/api/boards/3"
+        },
+        "profile": {
+            "href": "/docs/index.html#resources-boards-create"
+        }
+    }
+}
+```
+- 응답받은 메시지의 URI로 CRUD 를 할 수 있다.
