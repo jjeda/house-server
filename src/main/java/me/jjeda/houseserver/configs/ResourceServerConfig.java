@@ -7,6 +7,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableResourceServer
@@ -22,10 +23,15 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         http
             .anonymous()
                 .and()
+            .csrf().disable()
+            .headers().frameOptions().disable()
+                .and()
             .authorizeRequests()
                 .mvcMatchers(HttpMethod.GET, "/api/**")
                     .permitAll()
                 .mvcMatchers(HttpMethod.POST, "/oauth/register/**")
+                    .permitAll()
+                .antMatchers("/h2-console/**")
                     .permitAll()
                 .anyRequest()
                     .authenticated()
