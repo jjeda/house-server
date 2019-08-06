@@ -92,6 +92,7 @@ public class BoardControllerTest extends BaseControllerTest {
                                 fieldWithPath("createdDateTime").description("date time of begin of new board"),
                                 fieldWithPath("modifiedDateTime").description("date time of modified board"),
                                 fieldWithPath("boardType").description("boardType of new board"),
+                                fieldWithPath("files").description("files URL of new board"),
                                 fieldWithPath("manager").description("manager of new board")
                         ),
                         responseHeaders(

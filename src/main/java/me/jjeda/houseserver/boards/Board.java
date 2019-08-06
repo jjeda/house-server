@@ -21,6 +21,7 @@ public class Board {
     private String title;
     @NotEmpty
     private String contents;
+    private String[] files;
     private LocalDateTime createdDateTime;
     private LocalDateTime modifiedDateTime;
 
