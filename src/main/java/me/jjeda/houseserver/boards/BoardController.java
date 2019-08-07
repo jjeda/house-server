@@ -25,6 +25,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
 @Controller
 @AllArgsConstructor
+@CrossOrigin
 @RequestMapping(value = "/api/boards", produces = MediaTypes.HAL_JSON_UTF8_VALUE)
 public class BoardController {
 

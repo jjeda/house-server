@@ -41,7 +41,7 @@ public class AppConfig {
 
             @Override
             public void run(ApplicationArguments args) throws Exception {
-                Account admin = Account.builder()
+           /*     Account admin = Account.builder()
                         .email(appProperties.getAdminUsername())
                         .password(appProperties.getAdminPassword())
                         .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
@@ -53,7 +53,7 @@ public class AppConfig {
                         .password(appProperties.getUserPassword())
                         .roles(Set.of(AccountRole.USER))
                         .build();
-                accountService.saveAccount(user);
+                accountService.saveAccount(user);*/
             }
         };
     }

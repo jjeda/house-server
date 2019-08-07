@@ -10,6 +10,7 @@ import java.util.Set;
 
 @RestController
 @AllArgsConstructor
+@CrossOrigin
 public class AccountController {
 
     private AccountService accountService;
@@ -21,7 +22,7 @@ public class AccountController {
         Account newAccount = Account.builder()
                 .email(account.getEmail())
                 .password(account.getPassword())
-                .roles(Set.of(AccountRole.USER,AccountRole.ADMIN))
+                .roles(Set.of(AccountRole.USER))
                 .build();
         accountService.saveAccount(newAccount);
 
