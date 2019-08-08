@@ -308,6 +308,7 @@ public class BoardControllerTest extends BaseControllerTest {
         return Board.builder()
                 .title("Board Test" + index)
                 .contents("Rest API Development with Spring")
+                .files(null)
                 .createdDateTime(LocalDateTime.now())
                 .boardType(BoardType.PORTFOLIO)
                 .build();

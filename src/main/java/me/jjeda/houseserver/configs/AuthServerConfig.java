@@ -51,4 +51,5 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
                 .userDetailsService(accountService)
                 .tokenStore(tokenStore);
     }
+
 }

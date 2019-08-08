@@ -53,17 +53,17 @@ public class BoardController {
 
     @GetMapping
     public ResponseEntity queryBoards(Pageable pageable,
-                                          PagedResourcesAssembler<Board> assembler,
-                                          @CurrentUser Account account) {
-        Page<Board> page = this.boardRepository.findAll(pageable);
-        PagedResources pagedResources = assembler.toResource(page, e -> new BoardResource(e));
-        pagedResources.add(new Link("/docs/index.html#resources-boards-list").withRel("profile"));
-        if (account != null) {
-            pagedResources.add(linkTo(BoardController.class).withRel("create-board"));
-        }
+                PagedResourcesAssembler<Board> assembler,
+                @CurrentUser Account account) {
+            Page<Board> page = this.boardRepository.findAll(pageable);
+            PagedResources pagedResources = assembler.toResource(page, e -> new BoardResource(e));
+            pagedResources.add(new Link("/docs/index.html#resources-boards-list").withRel("profile"));
+            if (account != null) {
+                pagedResources.add(linkTo(BoardController.class).withRel("create-board"));
+            }
 
 
-        return ResponseEntity.ok(pagedResources);
+            return ResponseEntity.ok(pagedResources);
     }
 
     @GetMapping("/{id}")
