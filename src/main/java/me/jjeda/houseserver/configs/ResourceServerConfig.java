@@ -61,8 +61,6 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                     .permitAll()
                 .and()
             .exceptionHandling()
-                .accessDeniedHandler(new OAuth2AccessDeniedHandler())
-        .and()
-        .cors();
+                .accessDeniedHandler(new OAuth2AccessDeniedHandler());
     }
 }
