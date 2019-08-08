@@ -18,7 +18,7 @@ public class IndexController {
     public ResourceSupport index() {
         var index = new ResourceSupport();
         index.add(linkTo(BoardController.class).withRel("boards"));
-        index.add(linkTo(AccountController.class).withRel("accounts"));
+        index.add(linkTo(AccountController.class).slash("api/accounts").withRel("accounts"));
         // TODO: index.add(linkTo(Post.class).withRel("posts"));
         return index;
 
