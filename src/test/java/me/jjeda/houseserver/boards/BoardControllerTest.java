@@ -244,6 +244,7 @@ public class BoardControllerTest extends BaseControllerTest {
         String BoardTitle = "Updated Board";
         board.setTitle(BoardTitle);
 
+
         //When & Them
         this.mockMvc.perform(put("/api/boards/{id}", tempBoard.getId())
                     .header(HttpHeaders.AUTHORIZATION, getBearerToken(false))

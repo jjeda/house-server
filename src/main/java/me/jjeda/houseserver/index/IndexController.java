@@ -1,5 +1,6 @@
 package me.jjeda.houseserver.index;
 
+import me.jjeda.houseserver.accounts.AccountController;
 import me.jjeda.houseserver.boards.Board;
 import me.jjeda.houseserver.boards.BoardController;
 import org.springframework.hateoas.ResourceSupport;
@@ -17,6 +18,7 @@ public class IndexController {
     public ResourceSupport index() {
         var index = new ResourceSupport();
         index.add(linkTo(BoardController.class).withRel("boards"));
+        index.add(linkTo(AccountController.class).withRel("accounts"));
         // TODO: index.add(linkTo(Post.class).withRel("posts"));
         return index;
 
