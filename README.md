@@ -7,8 +7,8 @@
 ## 1. 기술 스택
 
 - Spring security(OAuth2) : 인증, 권한, 인가
-  - 초기 Grant Type : password , TokenStore : Inmemmory(JVM)
-  - 확장 Grant Type : Authorization Code, TokenStore : JDBC -> Redis 
+  - 초기 Grant Type : password , TokenStore : Inmemory(JVM)
+  - 확장 Grant Type : Authorization Code, TokenStore : JVM -> JDBC -> Redis 
 - Spring Boot
 - Spring MVC
 - Spring data JPA : ORM

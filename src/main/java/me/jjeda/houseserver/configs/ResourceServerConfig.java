@@ -40,16 +40,20 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         http
             .anonymous()
                 .and()
-            .cors().disable()
+            //.cors().disable()
             .csrf().disable()
             .headers().frameOptions().disable()
                 .and()
+            .httpBasic()
+                .and()
             .authorizeRequests()
+//                .requestMatchers(CorsUtils::isPreFlightRequest)
+//                    .permitAll()
                 .mvcMatchers(HttpMethod.GET, "/api/**")
                     .permitAll()
-                .mvcMatchers(HttpMethod.OPTIONS, "/oauth/token")
+                .antMatchers(HttpMethod.OPTIONS, "/oauth/token")
                     .permitAll()
-                .mvcMatchers(HttpMethod.POST, "/oauth/register/**")
+                .mvcMatchers(HttpMethod.OPTIONS, "/oauth/**")
                     .permitAll()
                 .mvcMatchers(HttpMethod.GET,"/oauth/**")
                     .permitAll()
@@ -63,4 +67,18 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
             .exceptionHandling()
                 .accessDeniedHandler(new OAuth2AccessDeniedHandler());
     }
+
+   /* @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        // - (3)
+        configuration.addAllowedOrigin("*");
+        configuration.addAllowedMethod("*");
+        configuration.addAllowedHeader("*");
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }*/
 }
