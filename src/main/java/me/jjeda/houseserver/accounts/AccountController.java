@@ -9,8 +9,7 @@ import org.springframework.hateoas.PagedResources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @AllArgsConstructor
@@ -42,18 +41,18 @@ public class AccountController {
     }
 
     @PutMapping(value = "/api/accounts/{id}", produces = MediaTypes.HAL_JSON_UTF8_VALUE)
-    public ResponseEntity updateRoleSwitch(@PathVariable Integer id, @RequestBody Account account) {
+    public ResponseEntity updateRoleSwitch(@PathVariable Integer id) {
 
         // TODO : TEAM_USER <-> USER
-        // id 값 변경없이
-        /*Set roles = account.getRoles();
+        Account account = this.accountRepository.findById(id).get();
+        Set<AccountRole> roles = account.getRoles();
 
-        if(roles.contains(AccountRole.TEAM_USER)) {
+        if(roles.size()==2) {
             roles.remove(AccountRole.TEAM_USER);
-        } else {
+        }else {
             roles.add(AccountRole.TEAM_USER);
         }
-        */
+        this.accountRepository.save(account);
         return ResponseEntity.ok().build();
     }
 

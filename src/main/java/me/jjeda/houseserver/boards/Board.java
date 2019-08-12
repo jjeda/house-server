@@ -21,6 +21,7 @@ public class Board {
     @NotEmpty
     private String title;
     @NotEmpty
+    @Column(length = 4096)
     private String contents;
 
     @ElementCollection(targetClass=String.class)

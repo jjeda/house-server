@@ -101,7 +101,12 @@ public class BoardController {
             return new ResponseEntity(HttpStatus.UNAUTHORIZED);
         }
 
-        this.modelMapper.map(board, existingBoard);
+        //this.modelMapper.map(board, existingBoard);
+        existingBoard.setTitle(board.getTitle());
+        existingBoard.setContents(board.getContents());
+        existingBoard.setFiles(board.getFiles());
+        existingBoard.setBoardType(board.getBoardType());
+
         existingBoard.setModifiedDateTime(LocalDateTime.now());
         Board savedBoard = this.boardRepository.save(existingBoard);
 
@@ -113,8 +118,6 @@ public class BoardController {
     @DeleteMapping("/{id}")
     public ResponseEntity deleteBoard(@PathVariable Integer id) {
         this.boardRepository.deleteById(id);
-        this.boardRepository.deleteById(id);
-
 
         return ResponseEntity.ok().build();
     }
