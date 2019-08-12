@@ -7,6 +7,7 @@ import org.apache.tomcat.jni.Local;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
@@ -52,10 +53,10 @@ public class BoardController {
     }
 
     @GetMapping
-    public ResponseEntity queryBoards(Pageable pageable,
+    public ResponseEntity queryBoards(@Param("boardType") BoardType boardType, Pageable pageable,
                 PagedResourcesAssembler<Board> assembler,
                 @CurrentUser Account account) {
-            Page<Board> page = this.boardRepository.findAll(pageable);
+            Page<Board> page = this.boardRepository.findAllByBoardType(boardType, pageable);
             PagedResources pagedResources = assembler.toResource(page, e -> new BoardResource(e));
             pagedResources.add(new Link("/docs/index.html#resources-boards-list").withRel("profile"));
             if (account != null) {
