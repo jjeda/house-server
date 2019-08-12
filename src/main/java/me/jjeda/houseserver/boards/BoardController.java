@@ -112,6 +112,8 @@ public class BoardController {
     @DeleteMapping("/{id}")
     public ResponseEntity deleteBoard(@PathVariable Integer id) {
         this.boardRepository.deleteById(id);
+        this.boardRepository.deleteById(id);
+
 
         return ResponseEntity.ok().build();
     }

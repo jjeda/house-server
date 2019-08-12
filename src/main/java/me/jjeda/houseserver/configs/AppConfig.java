@@ -79,7 +79,9 @@ public class AppConfig {
                         .roles(Set.of(AccountRole.USER))
                         .build();
                 accountService.saveAccount(user);
-                IntStream.range(0, 30).forEach(this::generateBoard);
+                IntStream.range(0, 30).forEach(i-> {
+                    generateBoard(i,user);
+                });
             }
 
 
