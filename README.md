@@ -23,21 +23,18 @@
   - Unit Test
   - Slicing Test
   - Application Test
-- REST[(Docs 바로가기)](/static/docs/index.html) //TODO : 배포
+- REST
   - Self-descriptive
   - HATEOAS
 - MSA // TODO
   - 까지 할 수 있을까..
   - Docker
-  - AWS or GCP
+  - AWS // http://54.180.36.19:8080
   - API Gateway
   - Jenkins
 
-## 3. DOCS //  TODO : 배포
+## 3. [DOCS](http://54.180.36.19:8080/docs/index.html) 
 ![](src/main/resources/static/docs/docs1.png)
-![](src/main/resources/static/docs/docs3.png)
-![](src/main/resources/static/docs/docs6.png)
-![](src/main/resources/static/docs/docs7.png)
 ![](src/main/resources/static/docs/docs9.png)
 
 ## 4. 인증과정
