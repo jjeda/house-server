@@ -9,6 +9,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter @Setter @EqualsAndHashCode(of = "id")
@@ -21,7 +22,9 @@ public class Board {
     private String title;
     @NotEmpty
     private String contents;
-    private String[] files;
+
+    @ElementCollection(targetClass=String.class)
+    private List<String> files;
     private LocalDateTime createdDateTime;
     private LocalDateTime modifiedDateTime;
 
