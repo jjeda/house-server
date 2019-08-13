@@ -25,6 +25,7 @@ public class AccountController {
         Account newAccount = Account.builder()
                 .email(account.getEmail())
                 .password(account.getPassword())
+                .displayName(account.getDisplayName())
                 .roles(Set.of(AccountRole.USER))
                 .build();
         accountService.saveAccount(newAccount);
