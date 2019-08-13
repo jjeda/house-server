@@ -168,7 +168,7 @@ public class BoardControllerTest extends BaseControllerTest {
         IntStream.range(0, 30).forEach(this::generateBoard);
 
         //When & Then
-        this.mockMvc.perform(get("/api/boards")
+        this.mockMvc.perform(get("/api/boards?boardType=PORTFOLIO")
                 .param("page", "1")
                 .param("size", "10")
                 .param("sort", "id,DESC"))
@@ -188,7 +188,7 @@ public class BoardControllerTest extends BaseControllerTest {
         IntStream.range(0, 30).forEach(this::generateBoard);
 
         //When & Then
-        this.mockMvc.perform(get("/api/boards")
+        this.mockMvc.perform(get("/api/boards?boardType=PORTFOLIO")
                 .header(HttpHeaders.AUTHORIZATION, getBearerToken(true))
                 .param("page", "1")
                 .param("size", "10")
