@@ -13,6 +13,7 @@ public class AccountSerializer extends JsonSerializer<Account> {
         gen.writeStartObject();
         gen.writeNumberField("id", account.getId());
         gen.writeStringField("email",account.getEmail());
+        gen.writeStringField("displayName", account.getDisplayName());
 //        gen.writeStringField("role",account.getRoles().toString());
         gen.writeEndObject();
     }
