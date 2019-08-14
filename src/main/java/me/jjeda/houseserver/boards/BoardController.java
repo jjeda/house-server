@@ -57,10 +57,9 @@ public class BoardController {
                 PagedResourcesAssembler<Board> assembler,
                 @CurrentUser Account account) {
         Page<Board> page;
-        if(!(boardType==boardType.PORTFOLIO && boardType==boardType.POST)) {
+        if(!(boardType==boardType.PORTFOLIO || boardType==boardType.POST)) {
             page = this.boardRepository.findAll(pageable);
         } else {
-
             page = this.boardRepository.findAllByBoardType(boardType, pageable);
         }
             PagedResources pagedResources = assembler.toResource(page, e -> new BoardResource(e));
