@@ -56,7 +56,13 @@ public class BoardController {
     public ResponseEntity queryBoards(@Param("boardType") BoardType boardType, Pageable pageable,
                 PagedResourcesAssembler<Board> assembler,
                 @CurrentUser Account account) {
-            Page<Board> page = this.boardRepository.findAllByBoardType(boardType, pageable);
+        Page<Board> page;
+        if(!(boardType==boardType.PORTFOLIO && boardType==boardType.POST)) {
+            page = this.boardRepository.findAll(pageable);
+        } else {
+
+            page = this.boardRepository.findAllByBoardType(boardType, pageable);
+        }
             PagedResources pagedResources = assembler.toResource(page, e -> new BoardResource(e));
             pagedResources.add(new Link("/docs/index.html#resources-boards-list").withRel("profile"));
             if (account != null) {
